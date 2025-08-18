@@ -9,7 +9,14 @@ function processWebhookInstant(type, data) {
   // - Make sure, that the processing time does not exceed 30 seconds.
   //   Otherwise you risk the deactivation of your webhook.
 
-  api_sendPM("This is the immediate reaction to the webhook \"" + type + "\"\n" + JSON.stringify(data));
+  if (type == "questInvited" && AUTO_ACCEPT_QUESTS) {
+    api_acceptQuestInvite();
+  }
+  else if (type == "questFinished" && QUEST_FINISHED_NOTIFICATION) {
+    sendQuestFinishedNotification(data);
+  }
+
+  return false;
 }
 
 function processWebhookDelayed(type, data) {
@@ -18,11 +25,31 @@ function processWebhookDelayed(type, data) {
   // - Here you can take care of heavy work, that may take longer.
   // - It may take up to 30 - 60 seconds for this function to activate
   //   after the webhook was triggered.
-
-  api_sendPM("This is the delayed reaction to the webhook \"" + type + "\"\n" + JSON.stringify(data));
 }
 
 function processTrigger() {
   // [Authors] This function gets called by the example trigger.
   // - This is the place for recurrent tasks.
+}
+
+function sendQuestFinishedNotification(data) {
+  let questKey = data.quest.key;
+
+  let questName = getQuestName(questKey);
+  let questString = (questName == null ? "`" + questKey + "`" : "**" + questName + "**");
+
+  let questFinishedNotification = "You have finished the quest " + questString + ", congratulations! &#127881;";
+
+  api_sendPM(questFinishedNotification);
+}
+
+function getQuestName(key, defaultValue = null) {
+  let content = api_getContent();
+
+  if (key in content.quests) {
+    return content.quests[key].text;
+  }
+  else {
+    return defaultValue;
+  }
 }
