@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      :root {
+        --gray50: #4e4a57;
+        --gray100: #686274;
+        --gray300: #a5a1ac;
+        --gray500: #e1e0e3;
+        --gray600: #edecee;
+        --gray700: #f9f9f9;
+        --blue50: #46a7d9;
+        --blue100: #50b5e9;
+        --blue500: #a9dcf6;
+        --maroon100: #de3f3f;
+        --green50: #20b780;
+      }
+
+      body {
+        font-family: Roboto Condensed,sans-serif;
+        font-size: 14px;
+        line-height: 1.43;
+        color: var(--gray50);
+        background: var(--gray700);
+      }
+
+      h1, h2 {
+        font-weight: 700;
+      }
+
+      h1 {
+        font-size: 24px;
+        line-height: 1.67;
+        margin-bottom: 16px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        color: #ffffff;
+        background: var(--blue50);
+      }
+
+      h2 {
+        font-size: 20px;
+        line-height: 1.4;
+        margin-top: 16px;
+        color: var(--blue100);
+      }
+
+      a {
+        text-decoration: none;
+        color: var(--blue100);
+      }
+
+      font.installed {
+        font-weight: 700;
+        color: var(--green50);
+      }
+
+      font.notinstalled {
+        font-weight: 700;
+        color: var(--maroon100);
+      }
+
+      input[type="button"] {
+        height: 32px;
+        width: 124px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px 0 rgba(26,24,29,.12), 0 1px 2px 0 rgba(26,24,29,.24);
+        color: #ffffff;
+        background-color: var(--blue50);
+        transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+      }
+
+      input[type="button"]:disabled {
+        color: var(--gray300);
+        background-color: var(--blue500);
+      }
+
+      input[type="button"]:not(:disabled) {
+        cursor: pointer;
+      }
+
+      input[type="button"]:not(:disabled):focus {
+        box-shadow: 0 3px 6px 0 rgba(26,24,29,.16), 0 3px 6px 0 rgba(26,24,29,.24);
+        background-color: var(--blue100);
+        border-color: var(--blue100);
+      }
+
+      input[type="button"]:not(:disabled):hover {
+        box-shadow: 0 3px 6px 0 rgba(26,24,29,.16), 0 3px 6px 0 rgba(26,24,29,.24);
+        background-color: var(--blue100);
+      }
+
+      input[type="button"]:not(:disabled):active {
+        box-shadow: none;
+      }
+
+      .loader {
+        border: 5px solid var(--gray600);
+        border-top: 5px solid var(--gray100);
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        animation: spin 1s linear infinite;
+        -webkit-animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body align="center">
+    <h1><?= getScriptName() ?></h1>
+    <p>
+      Welcome to your script interface. This is the place to maintain your script.<br />
+      Here you can trigger the installation, update after a change to your preferences or remove the script.
+    </p>
+
+    <h2>Web App URL</h2>
+    <p>
+      Your Web App URL for future reference:<br />
+      <a href="<?= getWebAppURL() ?>"><?= getWebAppURL() ?></a>
+    </p>
+
+    <h2>Status</h2>
+    <? if (installTime) { ?>
+      <p>
+        <font class="installed">INSTALLED</font><br />
+        Your script has been installed on <?= installTime.toLocaleString('en-GB') ?>
+      </p>
+    <? } else { ?>
+      <p>
+        <font class="notinstalled">NOT INSTALLED</font><br />
+        Your script has not been installed yet.
+      </p>
+    <? } ?>
+
+    <h2>Actions</h2>
+    <div id="actions" style="display: block;">
+      <p>
+        <input type="button" value="Install" onclick="install()" <? if (installTime) { ?>disabled <? } ?>/>
+        <input type="button" value="Update" onclick="update()" <? if (!installTime) { ?>disabled <? } ?>/>
+        <input type="button" value="Uninstall" onclick="uninstall()" <? if (!installTime) { ?>disabled <? } ?>/>
+      </p>
+    </div>
+    <div id="waiting" align="center" style="display: none;">
+      <div class="loader"></div>
+      <p>
+        Processing ...<br />
+        Please wait until the page reloads.
+      </p>
+    </div>
+    <div id="reload" style="display: none;">
+      <p>
+        Automatic reload failed ...<br />
+        Please reload manually.
+      </p>
+      <p>
+        <input type="button" value="Reload" onclick="reloadPage()" />
+      </p>
+    </div>
+
+    <script>
+      function install() {
+        showWaiting();
+        google.script.run.withSuccessHandler(reloadPage).install();
+      }
+      function update() {
+        showWaiting();
+        google.script.run.withSuccessHandler(reloadPage).update();
+      }
+      function uninstall() {
+        showWaiting();
+        google.script.run.withSuccessHandler(reloadPage).uninstall();
+      }
+      function showWaiting() {
+        document.getElementById("actions").style.display = "none";
+        document.getElementById("waiting").style.display = "block";
+      }
+      function reloadPage() {
+        google.script.run.withSuccessHandler(function(url) {
+          window.open(url, "_top");
+        }).getWebAppURL();
+        setTimeout(showManualReload, 3000);
+      }
+      function showManualReload() {
+        document.getElementById("waiting").style.display = "none";
+        document.getElementById("reload").style.display = "block";
+      }
+    </script>
+  </body>
+</html>
