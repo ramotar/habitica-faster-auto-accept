@@ -67,6 +67,8 @@ function install() {
       // create webhooks
       createWebhooks();
 
+      acceptPendingQuestInvite();
+
       // save the time the installation was completed
       updateInstallTime();
 
@@ -126,8 +128,8 @@ function createWebhooks() {
   let webhookData = {
     "type": "questActivity",
     "options": {
-      "questInvited": true,
-      "questFinished": true,
+      "questInvited": AUTO_ACCEPT_QUESTS,
+      "questFinished": QUEST_FINISHED_NOTIFICATION,
     }
   }
   api_createWebhook(webhookData);
