@@ -1,8 +1,10 @@
 /**
- * Example script v1.2.3 by John Doe
+ * Faster Auto Accept v1.0.0 by Turac Ramotar
+ *
+ * a port of Faster Auto Accept Quests and Auto Notify on Quest End by EugeneG
  *
  * See Wiki page for info & setup instructions:
- * https://habitica.fandom.com/wiki/
+ * https://habitica.fandom.com/wiki/Habitica_GAS_Template
  */
 
 /* ========================================== */
@@ -23,6 +25,8 @@ const API_TOKEN = "PasteYourApiTokenHere";
 /* ========================================== */
 // [Authors] Place all optional user-modified variables here
 // - e.g. enable/disable notifications, enable/disable script features, etc.
+const AUTO_ACCEPT_QUESTS = true;
+const QUEST_FINISHED_NOTIFICATION = true;
 
 /* ========================================== */
 /* [Users] Do not edit code below this line   */
@@ -32,7 +36,7 @@ const API_TOKEN = "PasteYourApiTokenHere";
 // - This is used for the "X-Client" HTTP header
 // - See https://habitica.fandom.com/wiki/Guidance_for_Comrades#X-Client_Header
 const AUTHOR_ID = "b477462a-5bb5-4040-9505-f0b049b4f0bb";
-const SCRIPT_NAME = "HabiticaGASTemplate";
+const SCRIPT_NAME = "FasterAutoAccept";
 
 // [Authors] Add global variables here
 // - Note that these do not persist in between script calls
@@ -120,9 +124,10 @@ function createWebhooks() {
   logInfo("Creating webhooks");
 
   let webhookData = {
-    "type": "taskActivity",
+    "type": "questActivity",
     "options": {
-      "scored": true
+      "questInvited": true,
+      "questFinished": true,
     }
   }
   api_createWebhook(webhookData);
@@ -181,6 +186,16 @@ function validateOptions() {
   // test credentials
   if (valid) {
     valid = testCredentials();
+  }
+
+  if (typeof AUTO_ACCEPT_QUESTS !== "boolean") {
+    logError("AUTO_ACCEPT_QUESTS must be a boolean value.\n\ne.g. const AUTO_ACCEPT_QUESTS = true;");
+    valid = false;
+  }
+
+  if (typeof QUEST_FINISHED_NOTIFICATION !== "boolean") {
+    logError("QUEST_FINISHED_NOTIFICATION must be a boolean value.\n\ne.g. const QUEST_FINISHED_NOTIFICATION = true;");
+    valid = false;
   }
 
   if (!valid) {
