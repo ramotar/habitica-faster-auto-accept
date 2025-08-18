@@ -30,6 +30,7 @@ function processWebhookDelayed(type, data) {
 function processTrigger() {
   // [Authors] This function gets called by the example trigger.
   // - This is the place for recurrent tasks.
+  acceptPendingQuestInvite();
 }
 
 function sendQuestFinishedNotification(data) {
@@ -51,5 +52,12 @@ function getQuestName(key, defaultValue = null) {
   }
   else {
     return defaultValue;
+  }
+}
+
+function acceptPendingQuestInvite() {
+  let party = api_getParty();
+  if (typeof party !== "undefined" && typeof party.quest.key !== "undefined" && !party.quest.active && !(INT_USER_ID in party.quest.members)) {
+    api_acceptQuestInvite();
   }
 }
