@@ -11,6 +11,7 @@ Whenever you are invited to a quest this script is activated via a webhook and a
 This script is based on the [Habitica GAS Template](https://habitica.fandom.com/wiki/Habitica_GAS_Template).
 
 ## Installation
+The source of this script is available on [Google Apps Script](https://script.google.com/home/projects/1yzfbIEs8pSZowopjBNHbwYtsm4e9L0OP7V-IT6yWZUYfzIETuAAXXGBO) for the installation.
 The installation instructions are given on the [Wiki page](https://habitica.fandom.com/wiki/Habitica_GAS_Template#Installation) of the template.
 
 ## Usage
